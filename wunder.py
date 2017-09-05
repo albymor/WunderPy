@@ -19,16 +19,22 @@ from bs4 import BeautifulSoup as bs
 from optparse import OptionParser
 import requests
 import sys
+import re
+import json
+import ast
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-def fetch_data(id):
-
+def get_page_content(id):
 	# get the page content
 	page_content = requests.get('https://www.wunderground.com/personal-weather-station/dashboard?ID=' + id).content
-	soup = bs(page_content, "html.parser")
-	
+	return bs(page_content, "html.parser")
+
+def get_current_data(id):
+	# get the page content
+	soup = get_page_content(id)
+
 	#dict that will contain the weather parameters
 	weather_condition = {}
 	
@@ -45,6 +51,23 @@ def fetch_data(id):
 		weather_condition[data_variable] = datas
 
 	return weather_condition
+
+def get_hystory(id):
+	soup = get_page_content(id)
+
+	pattern = re.compile(r"wui.bootstrapped.pwsdashboard\s+=\s+.*")
+	script = soup.find("script", text=pattern)
+
+	# print script
+
+	# remove_header_pattern = re.compile(r"<script>\s+wui.bootstrapped.pwsdashboard\s+=\s+.")
+	remove_header_pattern = re.compile(r"wui.bootstrapped.pwsdashboard\s+=\s+")
+	remove_last_pattern = re.compile(r";")
+	data = re.sub(remove_header_pattern, "", script.text)#, re.IGNORECASE)
+	data = re.sub(remove_last_pattern, "", data)
+	null = None
+	data_dict = eval(data)
+	print data_dict['radarCamVars']
 
 def print_data(weather_data):
 	for key in weather_data:
@@ -66,7 +89,8 @@ def main(argv):
 	(options, args) = parser.parse_args(sys.argv)
 
 	if options.print_opt:
-		print_data(fetch_data(options.station_id))
+		print_data(get_current_data(options.station_id))
 
 if __name__ == '__main__':
-	main(sys.argv)
+	get_hystory('IASIAGO1380')
+	# main(sys.argv)
