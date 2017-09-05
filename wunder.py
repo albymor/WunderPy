@@ -53,21 +53,48 @@ def get_current_data(id):
 	return weather_condition
 
 def get_hystory(id):
+	
+	# get the page content
 	soup = get_page_content(id)
 
+	# find the part conining the table with all the parameters
 	pattern = re.compile(r"wui.bootstrapped.pwsdashboard\s+=\s+.*")
 	script = soup.find("script", text=pattern)
 
-	# print script
-
-	# remove_header_pattern = re.compile(r"<script>\s+wui.bootstrapped.pwsdashboard\s+=\s+.")
+	# strip the header and the tail from the table
 	remove_header_pattern = re.compile(r"wui.bootstrapped.pwsdashboard\s+=\s+")
 	remove_last_pattern = re.compile(r";")
 	data = re.sub(remove_header_pattern, "", script.text)#, re.IGNORECASE)
 	data = re.sub(remove_last_pattern, "", data)
+
+	#declaration of some variables needed to convert the table to a python dict
 	null = None
+	false = False
+	true = True
+	crossLinkingVars = "crossLinkingVars"
+	histType = "histType"
+	locid = "locid"
+	radarCamVars = "radarCamVars"
+	stationid = "stationid"
+	units = "units"
+	nwo = "nwo"
+	sda = "sda"
+	cam = "cam"
+	nim  = "nim "
+	pws_bootstrap = "pws_bootstrap"
+	country = "country"
+	mapTypeId = "mapTypeId"
+	lat = "lat"
+	lon = "lon"
+	isRecent = "isRecent"
+	lastUpdateEpoch = "lastUpdateEpoch"
+	units = "units"
+	mode = "mode"
+	scrollTo = "scrollTo"
+
+	# convert the table to a python dict
 	data_dict = eval(data)
-	print data_dict['radarCamVars']
+	return data_dict
 
 def print_data(weather_data):
 	for key in weather_data:
@@ -92,5 +119,8 @@ def main(argv):
 		print_data(get_current_data(options.station_id))
 
 if __name__ == '__main__':
-	get_hystory('IASIAGO1380')
+	tmp = get_hystory('IASIAGO1380')
+	# print tmp["radarCamVars"]["pws_bootstrap"]["history"]["days"]["observations"]
+	print len(tmp["radarCamVars"]["pws_bootstrap"]["history"]["days"][0]["observations"])
+
 	# main(sys.argv)
