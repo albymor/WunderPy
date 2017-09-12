@@ -107,6 +107,9 @@ def main(argv):
 		"-p", "--print", dest="print_opt", help="print fetched data", default=False, action="store_true")
 
 	parser.add_option(
+		"-d", "--dict", dest="dict_opt", help="return a dict with history fetched data", default=False, action="store_true")
+
+	parser.add_option(
 		"-i", "--id", dest="station_id",
 		help="id of the station", default="IASIAGO1380")
 
@@ -118,9 +121,12 @@ def main(argv):
 	if options.print_opt:
 		print_data(get_current_data(options.station_id))
 
-if __name__ == '__main__':
-	tmp = get_hystory('IASIAGO1380')
-	# print tmp["radarCamVars"]["pws_bootstrap"]["history"]["days"]["observations"]
-	print len(tmp["radarCamVars"]["pws_bootstrap"]["history"]["days"][0]["observations"])
+	if options.dict_opt:
+		tmp = get_hystory('IASIAGO1380')
+		# print tmp["radarCamVars"]["pws_bootstrap"]["history"]["days"]["observations"]
+		for measure in tmp["radarCamVars"]["pws_bootstrap"]["history"]["days"][0]["observations"]:
+			print measure
+			print "---------------------------------------------------------------------------------"
 
-	# main(sys.argv)
+if __name__ == '__main__':
+	main(sys.argv)
